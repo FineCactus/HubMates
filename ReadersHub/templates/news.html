@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'styles/news_styles.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'styles/news_responsive.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'styles/events_custom.css' %}">
+
+{% endblock %}
+
+{% block content %}
+	
+	<!-- Home -->
+
+	<div class="home">
+		<div class="home_background_container prlx_parent">
+			<div class="home_background prlx" style="background-image:url({% static 'images/news_background.jpg' %})"></div>
+		</div>
+		<div class="home_content">
+			<h1>The Events</h1>
+		</div>
+	</div>
+
+	<!-- News -->
+
+	<div class="news">
+		<div class="container">
+			<div class="row">
+				
+				<!-- News Column -->
+
+				<div class="col-lg-12">
+					
+					<div class="news_compact_list">
+						{% if events %}
+							{% for event in events %}
+							<!-- Dynamic Event Item from Database -->
+							<div class="news_compact_item mb-4">
+								<div class="news_compact_content">
+									<div class="news_title_section d-flex align-items-center mb-3">
+										<div class="news_compact_date_box">
+											<div class="news_compact_date">
+												<div class="date_day">{{ event.date|date:"d" }}</div>
+												<div class="date_month">{{ event.date|date:"M"|upper }}</div>
+											</div>
+										</div>
+										<div class="news_title_content">
+											<h3 class="news_compact_title">{{ event.title }}</h3>
+											<div class="news_compact_underline"></div>
+										</div>
+									</div>
+									<div class="news_content_body d-flex align-items-start">
+										<div class="news_content_image">
+											{% if event.poster %}
+												<img src="{{ event.poster.url }}" alt="{{ event.title }}" loading="lazy" class="event-poster">
+											{% else %}
+												<img src="{% static 'images/news_1.jpg' %}" alt="{{ event.title }}" loading="lazy" class="event-poster">
+											{% endif %}
+										</div>
+										<div class="news_content_text">
+											<p class="news_compact_desc">{{ event.description|truncatewords:25 }}</p>
+											<div class="event_details">
+												<div class="event_detail_item">
+													<span class="event_detail_label">College:</span>
+													<span class="event_detail_value">{{ event.college_name|default:"ReadersHub University" }}</span>
+												</div>
+												<div class="event_detail_item">
+													<span class="event_detail_label">Venue:</span>
+													<span class="event_detail_value">{{ event.venue }}</span>
+												</div>
+												<div class="event_detail_item">
+													<span class="event_detail_label">Time:</span>
+													<span class="event_detail_value">{{ event.time|time:"g:i A" }}</span>
+												</div>
+												<div class="event_detail_item">
+													<span class="event_detail_label">Date:</span>
+													<span class="event_detail_value">{{ event.date|date:"F d, Y" }}</span>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							{% endfor %}
+						{% else %}
+							<!-- Fallback Content when no events exist -->
+							<div class="news_compact_item mb-4">
+								<div class="news_compact_content">
+									<div class="news_title_section d-flex align-items-center mb-3">
+										<div class="news_compact_date_box">
+											<div class="news_compact_date">
+												<div class="date_day">--</div>
+												<div class="date_month">---</div>
+											</div>
+										</div>
+										<div class="news_title_content">
+											<h3 class="news_compact_title">No Events Currently Available</h3>
+											<div class="news_compact_underline"></div>
+										</div>
+									</div>
+									<div class="news_content_body d-flex align-items-start">
+										<div class="news_content_image">
+											<img src="{% static 'images/news_1.jpg' %}" alt="No Events">
+										</div>
+										<div class="news_content_text">
+											<p class="news_compact_desc">There are currently no events posted. Check back later or post your own event to get started!</p>
+											<div class="event_details">
+												<div class="event_detail_item">
+													<span class="event_detail_label">Action:</span>
+													<span class="event_detail_value">Visit the Post Event page to create an event</span>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						{% endif %}
+
+
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

@@ -1,0 +1,285 @@
+    {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'styles/contact_styles.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'styles/contact_responsive.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'styles/post_event_styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Home -->
+<div class="home">
+    <div class="home_background_container prlx_parent">
+        <div class="home_background prlx" style="background-image:url({% static 'images/contact_background.jpg' %})"></div>
+    </div>
+    <div class="home_content">
+        <h1>Post New Event</h1>
+    </div>
+</div>
+
+<!-- Post Event Form -->
+<div class="post_event_container">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="post_event_form">
+                    <h2 class="form_title">Create Your Event</h2>
+                    <p class="form_subtitle">Fill in the details below to post your event. Email verification is required to confirm your identity as an authentic event organizer.</p>
+                    
+                    <form id="postEventForm" method="post" action="{% url 'post_event' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Event Details Section -->
+                        <div class="form_group">
+                            <label class="form_label" for="event_title">Event Title *</label>
+                            <input type="text" id="event_title" name="event_title" class="form_input" required>
+                        </div>
+                        
+                        <div class="form_group">
+                            <label class="form_label" for="event_description">Event Description *</label>
+                            <textarea id="event_description" name="event_description" class="form_textarea" placeholder="Describe your event..." required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form_group">
+                                    <label class="form_label" for="event_date">Event Date *</label>
+                                    <input type="date" id="event_date" name="event_date" class="form_input" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form_group">
+                                    <label class="form_label" for="event_time">Event Time *</label>
+                                    <input type="time" id="event_time" name="event_time" class="form_input" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form_group">
+                            <label class="form_label" for="venue">Venue *</label>
+                            <input type="text" id="venue" name="venue" class="form_input" placeholder="Event location" required>
+                        </div>
+                        
+                        <div class="form_group">
+                            <label class="form_label" for="poster">Event Poster *</label>
+                            <input type="file" id="poster" name="poster" class="form_input" accept="image/*" required>
+                            <small style="color: #666; font-size: 12px;">Upload an image file (JPG, PNG, etc.)</small>
+                        </div>
+                        
+                        <div class="form_group">
+                            <label class="form_label" for="college_name">College/Institution Name *</label>
+                            <input type="text" id="college_name" name="college_name" class="form_input" placeholder="Your college or institution name" required>
+                        </div>
+                        
+                        <!-- Organizer Verification Section -->
+                        <div class="form_group">
+                            <label class="form_label" for="email">Organizer Email (for verification) *</label>
+                            <div class="d-flex">
+                                <input type="email" id="email" name="email" class="form_input" style="margin-right: 10px;" required>
+                                <button type="button" id="sendOtpBtn" class="btn_send_otp">Send OTP</button>
+                            </div>
+                            <div id="emailError" class="error_message"></div>
+                            <div id="emailSuccess" class="success_message"></div>
+                        </div>
+                        
+                        <!-- OTP Verification Section -->
+                        <div id="otpSection" class="otp_section">
+                            <div class="otp_message">
+                                A verification code has been sent to confirm you are an authentic event organizer. Please check your inbox and enter the code below.
+                            </div>
+                            <div class="form_group">
+                                <label class="form_label" for="otp_code">Enter OTP Code *</label>
+                                <input type="text" id="otp_code" name="otp_code" class="form_input" placeholder="6-digit code" maxlength="6">
+                                <div id="otpError" class="error_message"></div>
+                                <div id="otpSuccess" class="success_message"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <button type="submit" id="submitBtn" class="btn_verify_submit" disabled>
+                            Verify Identity & Post Event
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sendOtpBtn = document.getElementById('sendOtpBtn');
+    const otpSection = document.getElementById('otpSection');
+    const submitBtn = document.getElementById('submitBtn');
+    const emailInput = document.getElementById('email');
+    const otpInput = document.getElementById('otp_code');
+    
+    // Send OTP
+    sendOtpBtn.addEventListener('click', function() {
+        const email = emailInput.value;
+        if (!email) {
+            showError('emailError', 'Please enter your email address');
+            return;
+        }
+        
+        // Clear previous messages
+        clearMessages();
+        
+        // Show loading state
+        sendOtpBtn.textContent = 'Sending...';
+        sendOtpBtn.disabled = true;
+        
+        // Send AJAX request to backend
+        fetch('{% url "send_otp" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                'email': email
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                otpSection.style.display = 'block';
+                showSuccess('emailSuccess', data.message);
+                sendOtpBtn.textContent = 'Resend OTP';
+            } else {
+                showError('emailError', data.message);
+                sendOtpBtn.textContent = 'Send OTP';
+            }
+            sendOtpBtn.disabled = false;
+        })
+        .catch(error => {
+            showError('emailError', 'Network error. Please try again.');
+            sendOtpBtn.textContent = 'Send OTP';
+            sendOtpBtn.disabled = false;
+        });
+    });
+    
+    // Enable submit button when OTP is entered and all fields are filled
+    function checkFormCompletion() {
+        const otp = otpInput.value;
+        const poster = document.getElementById('poster').files.length > 0;
+        const collegeName = document.getElementById('college_name').value.trim();
+        const title = document.getElementById('event_title').value.trim();
+        const description = document.getElementById('event_description').value.trim();
+        const date = document.getElementById('event_date').value;
+        const time = document.getElementById('event_time').value;
+        const venue = document.getElementById('venue').value.trim();
+        
+        if (otp.length === 6 && poster && collegeName && title && description && date && time && venue) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Verify Identity & Post Event';
+        } else {
+            submitBtn.disabled = true;
+        }
+    }
+    
+    // Add event listeners to all form fields
+    otpInput.addEventListener('input', checkFormCompletion);
+    document.getElementById('poster').addEventListener('change', checkFormCompletion);
+    document.getElementById('college_name').addEventListener('input', checkFormCompletion);
+    document.getElementById('event_title').addEventListener('input', checkFormCompletion);
+    document.getElementById('event_description').addEventListener('input', checkFormCompletion);
+    document.getElementById('event_date').addEventListener('change', checkFormCompletion);
+    document.getElementById('event_time').addEventListener('change', checkFormCompletion);
+    document.getElementById('venue').addEventListener('input', checkFormCompletion);
+    
+    // Form submission
+    document.getElementById('postEventForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const otp = otpInput.value;
+        if (otp.length !== 6) {
+            showError('otpError', 'Please enter a valid 6-digit OTP');
+            return;
+        }
+        
+        // Validate all required fields
+        const poster = document.getElementById('poster').files.length > 0;
+        const collegeName = document.getElementById('college_name').value.trim();
+        
+        if (!poster) {
+            showError('otpError', 'Please upload an event poster');
+            return;
+        }
+        
+        if (!collegeName) {
+            showError('otpError', 'Please enter college/institution name');
+            return;
+        }
+        
+        // Clear previous messages
+        clearMessages();
+        
+        // Show loading state
+        submitBtn.textContent = 'Verifying...';
+        submitBtn.disabled = true;
+        
+        // Collect form data
+        const formData = new FormData(document.getElementById('postEventForm'));
+        
+        // Add OTP to form data
+        formData.set('otp', otp);
+        formData.set('title', formData.get('event_title'));
+        formData.set('description', formData.get('event_description'));
+        formData.set('date', formData.get('event_date'));
+        formData.set('time', formData.get('event_time'));
+        formData.set('venue', formData.get('venue'));
+        formData.set('college_name', formData.get('college_name'));
+        
+        // Send AJAX request for OTP verification with form data
+        fetch('{% url "verify_otp" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccess('otpSuccess', data.message);
+                setTimeout(() => {
+                    window.location.href = "{% url 'news' %}";
+                }, 2000);
+            } else {
+                showError('otpError', data.message);
+                submitBtn.textContent = 'Verify Identity & Post Event';
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            showError('otpError', 'Network error. Please try again.');
+            submitBtn.textContent = 'Verify Identity & Post Event';
+            submitBtn.disabled = false;
+        });
+    });
+    
+    function showError(elementId, message) {
+        document.getElementById(elementId).textContent = message;
+        setTimeout(() => {
+            document.getElementById(elementId).textContent = '';
+        }, 5000);
+    }
+    
+    function showSuccess(elementId, message) {
+        document.getElementById(elementId).textContent = message;
+        setTimeout(() => {
+            document.getElementById(elementId).textContent = '';
+        }, 5000);
+    }
+    
+    function clearMessages() {
+        document.getElementById('emailError').textContent = '';
+        document.getElementById('emailSuccess').textContent = '';
+        document.getElementById('otpError').textContent = '';
+        document.getElementById('otpSuccess').textContent = '';
+    }
+});
+</script>
+{% endblock %}
