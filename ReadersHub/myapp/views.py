@@ -5,6 +5,8 @@ from django.contrib import messages
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.utils import timezone
+from datetime import date
 from .forms import EventForm
 from .models import Event
 import random
@@ -14,12 +16,27 @@ import time
 # Create your views here.
 
 def index(request):
-    return render(request, 'index.html')
+    # Get today's events that are verified and active
+    today = date.today()
+    todays_events = Event.objects.filter(
+        date=today,
+        is_verified=True,
+        is_active=True
+    ).order_by('time')[:3]  # Limit to 3 events to maintain design
+    
+    return render(request, 'index.html', {'todays_events': todays_events})
 
 def news(request):
     # Fetch all verified and active events, ordered by creation date (newest first)
     events = Event.objects.filter(is_verified=True, is_active=True).order_by('-created_at')
     return render(request, 'news.html', {'events': events})
+
+def event_detail(request, event_id):
+    from django.shortcuts import get_object_or_404
+    # Get the specific event or return 404 if not found
+    event = get_object_or_404(Event, id=event_id, is_verified=True, is_active=True)
+    
+    return render(request, 'event_detail.html', {'event': event})
 
 def post_event(request):
     if request.method == 'POST':

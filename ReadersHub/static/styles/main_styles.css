@@ -1340,6 +1340,33 @@ input:last-of-type
 	margin-top: 21px;
 	margin-bottom: 13px;
 }
+.event_details_inline
+{
+	margin-top: 15px;
+	padding-top: 10px;
+	border-top: 1px solid #e5e5e5;
+}
+.event_details_inline small
+{
+	font-size: 13px;
+	color: #666;
+	font-weight: 500;
+}
+.event_details_inline small strong
+{
+	color: #1a1a1a;
+	font-weight: 600;
+}
+.event_details_inline a
+{
+	color: #ffb606;
+	text-decoration: none;
+}
+.event_details_inline a:hover
+{
+	color: #ff9500;
+	text-decoration: underline;
+}
 .event_image
 {
 

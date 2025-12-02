@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'styles/news_post_styles.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'styles/news_post_responsive.css' %}">
+<style>
+.event_detail_meta {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #333;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-weight: 600;
+}
+
+.event_detail_item_inline {
+    display: inline-block;
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+
+.event_detail_item_inline strong {
+    color: #1a1a1a;
+}
+
+.back_to_events {
+    margin-bottom: 20px;
+}
+
+.back_to_events a {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #333;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.back_to_events a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+    color: #333;
+    text-decoration: none;
+}
+
+.sidebar {
+    margin-top: 70px; /* Align sidebar with poster image */
+}
+
+/* Adjust back to events button positioning */
+.back_to_events {
+    position: relative;
+    z-index: 10;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+	
+	<!-- Home -->
+
+	<div class="home">
+		<div class="home_background_container prlx_parent">
+			<div class="home_background prlx" style="background-image:url({% static 'images/news_background.jpg' %})"></div>
+		</div>
+		<div class="home_content">
+			<h1>{{ event.title }}</h1>
+		</div>
+	</div>
+
+	<!-- Event Detail -->
+
+	<div class="news">
+		<div class="container">
+			<div class="row">
+				
+				<!-- Event Detail Column -->
+
+				<div class="col-lg-8">
+					
+					<div class="back_to_events">
+						<a href="{% url 'news' %}">&larr; Back to All Events</a>
+					</div>
+					
+					<div class="news_post_container">
+						<!-- Event Post -->
+						<div class="news_post">
+							<div class="news_post_image">
+								{% if event.poster %}
+									<img src="{{ event.poster.url }}" alt="{{ event.title }}">
+								{% else %}
+									<img src="{% static 'images/news_1.jpg' %}" alt="{{ event.title }}">
+								{% endif %}
+							</div>
+							<div class="news_post_top d-flex flex-column flex-sm-row">
+								<div class="news_post_date_container">
+									<div class="news_post_date d-flex flex-column align-items-center justify-content-center">
+										<div>{{ event.date|date:"d" }}</div>
+										<div>{{ event.date|date:"M"|lower }}</div>
+									</div>
+								</div>
+								<div class="news_post_title_container">
+									<div class="news_post_title">
+										<a href="#">{{ event.title }}</a>
+									</div>
+									<div class="news_post_meta">
+										<span class="news_post_author">Organized by {{ event.college_name }}</span>
+										<span>|</span>
+										<span class="news_post_comments">{{ event.date|date:"F d, Y" }} at {{ event.time|time:"g:i A" }}</span>
+									</div>
+								</div>
+							</div>
+							<div class="news_post_text">
+								<p>{{ event.description }}</p>
+							</div>
+
+							<div class="news_post_quote">
+								<p class="news_post_quote_text"><span>J</span>oin us for this exciting event! Make sure to mark your calendar and don't miss out on this wonderful opportunity.</p>
+							</div>
+
+							<p class="news_post_text" style="margin-top: 59px;">For more information about this event, please contact the organizers at {{ event.organizer_email }}. We look forward to seeing you there and making this event a memorable experience for everyone involved.</p>
+						</div>
+
+					</div>
+
+				</div>
+
+				<!-- Sidebar Column -->
+
+				<div class="col-lg-4">
+					<div class="sidebar">
+
+						<!-- Event Information -->
+						<div class="sidebar_section">
+							<div class="sidebar_section_title">
+								<h3>Event Information</h3>
+							</div>
+							<div class="event_info_sidebar">
+								<div class="event_info_item">
+									<strong>Date:</strong> {{ event.date|date:"F d, Y" }}
+								</div>
+								<div class="event_info_item">
+									<strong>Time:</strong> {{ event.time|time:"g:i A" }}
+								</div>
+								<div class="event_info_item">
+									<strong>Venue:</strong> {{ event.venue }}
+								</div>
+								<div class="event_info_item">
+									<strong>Organizer:</strong> {{ event.college_name }}
+								</div>
+								<div class="event_info_item">
+									<strong>Contact:</strong> {{ event.organizer_email }}
+								</div>
+							</div>
+						</div>
+
+
+
+						<!-- Actions -->
+
+						<div class="sidebar_section">
+							<div class="sidebar_section_title">
+								<h3>Actions</h3>
+							</div>
+							<div class="tags d-flex flex-row flex-wrap">
+								<div class="tag"><a href="{% url 'news' %}">All Events</a></div>
+								<div class="tag"><a href="{% url 'post_event' %}">Post Event</a></div>
+								<div class="tag"><a href="{% url 'index' %}">Home</a></div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

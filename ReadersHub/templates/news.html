@@ -45,7 +45,9 @@
 											</div>
 										</div>
 										<div class="news_title_content">
-											<h3 class="news_compact_title">{{ event.title }}</h3>
+											<h3 class="news_compact_title">
+												<a href="{% url 'event_detail' event.id %}" style="text-decoration: none; color: inherit;">{{ event.title }}</a>
+											</h3>
 											<div class="news_compact_underline"></div>
 										</div>
 									</div>
@@ -75,6 +77,9 @@
 												<div class="event_detail_item">
 													<span class="event_detail_label">Date:</span>
 													<span class="event_detail_value">{{ event.date|date:"F d, Y" }}</span>
+												</div>
+												<div class="event_read_more">
+													<a href="{% url 'event_detail' event.id %}" class="read_more_btn">Read More</a>
 												</div>
 											</div>
 										</div>
